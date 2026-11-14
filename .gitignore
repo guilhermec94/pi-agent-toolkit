@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Node (if an extension adds npm deps)
+node_modules/
+
+# Local backups
+backup-*/

@@ -1,0 +1,62 @@
+version: '3'
+
+vars:
+  AGENT_DIR:
+    sh: echo "$HOME/.pi/agent"
+
+tasks:
+  default:
+    desc: Show available tasks
+    silent: true
+    cmds:
+      - task --list
+
+  backup:
+    desc: Back up existing skills/extensions/agents/prompts in ~/.pi/agent
+    cmds:
+      - |
+        STAMP=$(date +%Y%m%d-%H%M%S)
+        DEST="{{.AGENT_DIR}}/backup-$STAMP"
+        FOUND=0
+        for d in skills extensions agents prompts; do
+          if [ -d "{{.AGENT_DIR}}/$d" ]; then
+            mkdir -p "$DEST"
+            cp -R "{{.AGENT_DIR}}/$d" "$DEST/"
+            FOUND=1
+          fi
+        done
+        if [ "$FOUND" = "1" ]; then
+          echo "Backed up existing config to: $DEST"
+        else
+          echo "Nothing to back up (no existing skills/extensions/agents/prompts)."
+        fi
+
+  install:
+    desc: Install skills, extensions, agents, and prompts into ~/.pi/agent
+    deps: [backup]
+    cmds:
+      - mkdir -p "{{.AGENT_DIR}}/skills" "{{.AGENT_DIR}}/extensions" "{{.AGENT_DIR}}/agents" "{{.AGENT_DIR}}/prompts"
+      - cp -R "{{.ROOT_DIR}}/skills/." "{{.AGENT_DIR}}/skills/"
+      - cp -R "{{.ROOT_DIR}}/extensions/." "{{.AGENT_DIR}}/extensions/"
+      - cp -R "{{.ROOT_DIR}}/agents/." "{{.AGENT_DIR}}/agents/"
+      - cp -R "{{.ROOT_DIR}}/prompts/." "{{.AGENT_DIR}}/prompts/"
+      - echo ""
+      - echo "Installed into {{.AGENT_DIR}}."
+      - echo "Run /reload in pi (or restart) to pick up the changes."
+
+  uninstall:
+    desc: Remove skills, extensions, agents, and prompts from ~/.pi/agent
+    cmds:
+      - rm -rf "{{.AGENT_DIR}}/skills" "{{.AGENT_DIR}}/extensions" "{{.AGENT_DIR}}/agents" "{{.AGENT_DIR}}/prompts"
+      - echo "Removed. Backups (if any) remain in {{.AGENT_DIR}}/backup-*."
+
+  link:
+    desc: Symlink repo dirs into ~/.pi/agent (dev mode — edit here, then /reload)
+    cmds:
+      - mkdir -p "{{.AGENT_DIR}}"
+      - rm -rf "{{.AGENT_DIR}}/skills" "{{.AGENT_DIR}}/extensions" "{{.AGENT_DIR}}/agents" "{{.AGENT_DIR}}/prompts"
+      - ln -s "{{.ROOT_DIR}}/skills" "{{.AGENT_DIR}}/skills"
+      - ln -s "{{.ROOT_DIR}}/extensions" "{{.AGENT_DIR}}/extensions"
+      - ln -s "{{.ROOT_DIR}}/agents" "{{.AGENT_DIR}}/agents"
+      - ln -s "{{.ROOT_DIR}}/prompts" "{{.AGENT_DIR}}/prompts"
+      - echo "Symlinked. Edit files in this repo, then /reload in pi."
