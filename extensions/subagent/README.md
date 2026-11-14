@@ -17,17 +17,12 @@ Delegate tasks to specialized subagents with isolated context windows.
 subagent/
 ├── README.md            # This file
 ├── index.ts             # The extension (entry point)
-├── agents.ts            # Agent discovery logic
-├── agents/              # Sample agent definitions
-│   ├── scout.md         # Fast recon, returns compressed context
-│   ├── planner.md       # Creates implementation plans
-│   ├── reviewer.md      # Code review
-│   └── worker.md        # General-purpose (full capabilities)
-└── prompts/             # Workflow presets (prompt templates)
-    ├── implement.md     # scout -> planner -> worker
-    ├── scout-and-plan.md    # scout -> planner (no implementation)
-    └── implement-and-review.md  # worker -> reviewer -> worker
+└── agents.ts            # Agent discovery logic
 ```
+
+Agents are loaded at runtime from `~/.pi/agent/agents/` (user) and `.pi/agents/`
+(project). Prompt templates live in `~/.pi/agent/prompts/`. This extension ships no
+agent or prompt definitions of its own — edit the top-level directories instead.
 
 ## Installation
 
