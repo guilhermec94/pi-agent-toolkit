@@ -131,6 +131,17 @@ Symlink the repo into `~/.pi/agent` so edits apply after `/reload` without reins
 task link
 ```
 
+## Sandbox (Docker)
+
+Run pi in a disposable container so it can only touch the directory you mount — never
+your system. Full guide: [sandbox/README.md](sandbox/README.md).
+
+```sh
+cd ~/some-project
+path/to/pi-agent-toolkit/sandbox/run.sh "summarize this repo"    # minimal
+PI_SANDBOX_CONFIG=1 path/to/pi-agent-toolkit/sandbox/run.sh      # with your toolkit
+```
+
 ## Uninstall
 
 ```sh
