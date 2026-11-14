@@ -17,13 +17,23 @@ Add this to `~/.bashrc.d/pi-sandbox.sh` (your `.bashrc` already sources `~/.bash
 pi() {
   docker image inspect pi-sandbox >/dev/null 2>&1 || \
     docker build -t pi-sandbox "$HOME/projects/pi-agent-toolkit/sandbox"
-  [ -z "${DEEPSEEK_API_KEY:-}" ] && echo "WARNING: DEEPSEEK_API_KEY is not set" >&2
+
+  # Forward any *_API_KEY from the host so any provider works.
+  local -a key_envs=()
+  local name
+  for name in $(env | grep -oE '^[A-Z0-9_]+_API_KEY' || true); do
+    key_envs+=(-e "$name")
+  done
+  [ "${#key_envs[@]}" -eq 0 ] && \
+    echo "WARNING: no *_API_KEY set; pi may not authenticate." >&2
+
   local it=""; [ -t 0 ] && it="-it"
   local -a config=()
   [ "${PI_SANDBOX_CONFIG:-0}" = "1" ] && config=(-v "$HOME/.pi/agent:/config:ro")
+
   docker run ${it} --rm \
     --add-host=host.docker.internal:host-gateway \
-    -e "DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}" \
+    "${key_envs[@]}" \
     "${config[@]}" \
     -v pi-sessions:/home/node/.pi/agent/sessions \
     -v "$(pwd):/workspace" \
@@ -44,8 +54,8 @@ Then `source ~/.bashrc` (or open a new shell).
 
 ## Usage
 
-`pi` mounts the current directory at `/workspace` and passes `DEEPSEEK_API_KEY` through
-from your environment.
+`pi` mounts the current directory at `/workspace` and forwards your `*_API_KEY`
+environment variables (whatever provider you use).
 
 ```sh
 pi "summarize this repo"        # interactive TUI (multi-turn, you keep prompting)
@@ -67,9 +77,10 @@ docker volume rm pi-sessions
 
 ## How auth works
 
-pi's DeepSeek provider reads its key from the `DEEPSEEK_API_KEY` environment variable
-(your `models.json` sets `"apiKey": "DEEPSEEK_API_KEY"`), so no credentials are baked
-into the image — just have `DEEPSEEK_API_KEY` set on the host.
+pi reads the API key for its configured provider from an environment variable — e.g.
+`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`, and so on (the provider's
+`models.json` sets `"apiKey": "<ENV_VAR>"`). The sandbox forwards whatever `*_API_KEY`
+variables you have set on the host, so no credentials are baked into the image.
 
 ## What's isolated / not
 

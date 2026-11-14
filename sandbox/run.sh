@@ -9,8 +9,14 @@ if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
   docker build -t "$IMAGE" "$HERE"
 fi
 
-if [ -z "${DEEPSEEK_API_KEY:-}" ]; then
-  echo "WARNING: DEEPSEEK_API_KEY is not set; pi will not be able to authenticate." >&2
+# Forward any *_API_KEY from the host so any provider works
+# (OPENAI_API_KEY, ANTHROPIC_API_KEY, DEEPSEEK_API_KEY, ...).
+KEY_ENVS=()
+for name in $(env | grep -oE '^[A-Z0-9_]+_API_KEY' || true); do
+  KEY_ENVS+=(-e "$name")
+done
+if [ "${#KEY_ENVS[@]}" -eq 0 ]; then
+  echo "WARNING: no *_API_KEY environment variable set; pi may not be able to authenticate." >&2
 fi
 
 # Optional: mount your real config read-only so skills/extensions/models are available.
@@ -22,7 +28,7 @@ fi
 
 exec docker run -it --rm \
   --add-host=host.docker.internal:host-gateway \
-  -e "DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}" \
+  "${KEY_ENVS[@]}" \
   "${CONFIG_ARGS[@]}" \
   -v pi-sessions:/home/node/.pi/agent/sessions \
   -v "$(pwd):/workspace" \
