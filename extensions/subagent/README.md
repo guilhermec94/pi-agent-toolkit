@@ -26,26 +26,23 @@ agent or prompt definitions of its own — edit the top-level directories instea
 
 ## Installation
 
-From the repository root, symlink the files:
+This extension ships as part of the pi-agent-toolkit repo. Install the whole toolkit
+with go-task:
 
 ```bash
-# Symlink the extension (must be in a subdirectory with index.ts)
-mkdir -p ~/.pi/agent/extensions/subagent
-ln -sf "$(pwd)/packages/coding-agent/examples/extensions/subagent/index.ts" ~/.pi/agent/extensions/subagent/index.ts
-ln -sf "$(pwd)/packages/coding-agent/examples/extensions/subagent/agents.ts" ~/.pi/agent/extensions/subagent/agents.ts
-
-# Symlink agents
-mkdir -p ~/.pi/agent/agents
-for f in packages/coding-agent/examples/extensions/subagent/agents/*.md; do
-  ln -sf "$(pwd)/$f" ~/.pi/agent/agents/$(basename "$f")
-done
-
-# Symlink workflow prompts
-mkdir -p ~/.pi/agent/prompts
-for f in packages/coding-agent/examples/extensions/subagent/prompts/*.md; do
-  ln -sf "$(pwd)/$f" ~/.pi/agent/prompts/$(basename "$f")
-done
+git clone <repo-url> pi-agent-toolkit
+cd pi-agent-toolkit
+task install
 ```
+
+`task install` backs up any existing config, then copies `skills/`, `extensions/`,
+`agents/`, and `prompts/` into `~/.pi/agent/`. Run `/reload` in pi (or restart) to load.
+
+To install only this extension by hand:
+
+1. Copy `index.ts` and `agents.ts` into `~/.pi/agent/extensions/subagent/`.
+2. Put your agent `.md` files in `~/.pi/agent/agents/`.
+3. Put your workflow prompt `.md` files in `~/.pi/agent/prompts/`.
 
 ## Security Model
 
