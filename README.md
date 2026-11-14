@@ -75,7 +75,12 @@ task backup
 
 ### Subagents
 
-`scout`, `planner`, `worker`, `reviewer`, `go-reviewer`, `terraform-reviewer`, `cli-reviewer`.
+`scout`, `planner`, `worker`, `reviewer`, `go-reviewer`, `terraform-reviewer`, `cli-reviewer`,
+`tester`, `security-reviewer`.
+
+Read-only and verification agents (`scout`, the reviewers, `tester`, `security-reviewer`) run on
+`deepseek-chat` (cheap, no thinking). `planner` and `worker` use the default (top) model. Override
+per-agent in `agents/<name>.md` via the `model:` field.
 
 Use them directly or through chains:
 
