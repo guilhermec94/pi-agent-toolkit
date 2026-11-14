@@ -61,6 +61,7 @@ task backup
 |---|---|
 | `infra-guard.ts` | Confirms terraform apply/destroy, kubectl/helm/cloud destructive commands, force push, `rm -rf`, sudo. Blocks them in non-interactive mode. |
 | `protected-paths.ts` | Blocks writes to tfstate, `.terraform/`, `.git/`, `vendor/`, kubeconfig, keys, `.env`; warns on `go.sum`, `go.mod`, `*.tfvars`. |
+| `secret-guard.ts` | Blocks `bash` commands that inline secrets; redacts known secrets + common patterns from tool output and messages. |
 | `terraform-plan.ts` | `terraform_plan` tool: plan + compact summary, validate, and apply only a plan created this session. |
 | `go-test.ts` | `go_test` tool: `go test -json` with compact failures and coverage. |
 | `go-lint.ts` | `go_lint` tool: golangci-lint diagnostics grouped by file. |
@@ -106,6 +107,19 @@ The core loop is two skills:
 
 In `scaffold` and `half`, the agent leaves compiling stubs with a contract comment and a
 failing test — the hand-off is explicit, so the hard part stays yours if you want it.
+
+## Secrets
+
+The `secret-guard` extension keeps secret values out of the conversation — and therefore
+out of the LLM provider and the on-disk session files:
+
+- Blocks `bash` commands that inline a secret (use `$VAR` instead).
+- Redacts known secrets and common patterns (AWS keys, GitHub tokens, private keys,
+  JWTs, basic-auth URLs, bearer headers) from tool output.
+- Redacts your known secrets from the message list before each model call.
+
+Add your secrets to `~/.pi/agent/secrets.env` (one `KEY=VALUE` per line — the value is
+what gets redacted). See `secrets.env.example`. Run `/secrets` in pi to check status.
 
 ## Dev mode
 

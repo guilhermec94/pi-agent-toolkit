@@ -6,3 +6,6 @@ node_modules/
 
 # Local backups
 backup-*/
+
+# Secrets (never commit)
+secrets.env
