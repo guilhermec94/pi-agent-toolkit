@@ -60,3 +60,8 @@ tasks:
       - ln -s "{{.ROOT_DIR}}/agents" "{{.AGENT_DIR}}/agents"
       - ln -s "{{.ROOT_DIR}}/prompts" "{{.AGENT_DIR}}/prompts"
       - echo "Symlinked. Edit files in this repo, then /reload in pi."
+
+  validate:
+    desc: Validate all SKILL.md frontmatter (the Taskfile must already parse to run this)
+    cmds:
+      - python3 "{{.ROOT_DIR}}/scripts/validate-skills.py"
