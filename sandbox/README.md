@@ -28,6 +28,35 @@ or with extra args:
 `run.sh` mounts the current directory at `/workspace` and passes `DEEPSEEK_API_KEY`
 through from your environment.
 
+## Shell function (recommended)
+
+Make `pi` run sandboxed by default with a shell function (e.g. in `~/.bashrc.d/pi-sandbox.sh`,
+sourced by your `.bashrc`):
+
+```bash
+pi() {
+  docker image inspect pi-sandbox >/dev/null 2>&1 || \
+    docker build -t pi-sandbox "$HOME/projects/pi-agent-toolkit/sandbox"
+  [ -z "${DEEPSEEK_API_KEY:-}" ] && echo "WARNING: DEEPSEEK_API_KEY is not set" >&2
+  local it=""; [ -t 0 ] && it="-it"
+  local -a config=()
+  [ "${PI_SANDBOX_CONFIG:-0}" = "1" ] && config=(-v "$HOME/.pi/agent:/config:ro")
+  docker run ${it} --rm \
+    --add-host=host.docker.internal:host-gateway \
+    -e "DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}" \
+    "${config[@]}" -v "$(pwd):/workspace" pi-sandbox "$@"
+}
+```
+
+Then:
+
+```sh
+pi "summarize this repo"        # interactive TUI
+pi -p "explain main.go"         # print (non-interactive) mode
+PI_SANDBOX_CONFIG=1 pi          # with your toolkit
+command pi                      # the local (unsandboxed) pi binary
+```
+
 ## How auth works
 
 pi's DeepSeek provider reads its key from the `DEEPSEEK_API_KEY` environment variable
