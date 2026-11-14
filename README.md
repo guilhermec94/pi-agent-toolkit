@@ -121,6 +121,8 @@ out of the LLM provider and the on-disk session files:
 Add your secrets to `~/.pi/agent/secrets.env` (one `KEY=VALUE` per line — the value is
 what gets redacted). See `secrets.env.example`. Run `/secrets` in pi to check status.
 
+Full details: [docs/secret-guard.md](docs/secret-guard.md).
+
 ## Dev mode
 
 Symlink the repo into `~/.pi/agent` so edits apply after `/reload` without reinstalling:
