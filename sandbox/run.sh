@@ -24,5 +24,6 @@ exec docker run -it --rm \
   --add-host=host.docker.internal:host-gateway \
   -e "DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}" \
   "${CONFIG_ARGS[@]}" \
+  -v pi-sessions:/home/node/.pi/agent/sessions \
   -v "$(pwd):/workspace" \
   "$IMAGE" "$@"

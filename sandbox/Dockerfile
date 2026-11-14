@@ -14,6 +14,10 @@ RUN npm install -g @mariozechner/pi-coding-agent
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Pre-create the sessions dir (node-owned) so a named volume mounted there
+# inherits the right ownership on first use.
+RUN mkdir -p /home/node/.pi/agent/sessions && chown -R node:node /home/node/.pi/agent
+
 # Run as the non-root `node` user (uid 1000) so a sandboxed agent is not root.
 USER node
 

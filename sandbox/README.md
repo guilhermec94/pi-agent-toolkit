@@ -57,6 +57,18 @@ PI_SANDBOX_CONFIG=1 pi          # with your toolkit
 command pi                      # the local (unsandboxed) pi binary
 ```
 
+## Session persistence
+
+Sessions are stored in a named Docker volume (`pi-sessions`), so they survive between
+sandbox runs (but stay separate from your real `~/.pi/agent/sessions`):
+
+```sh
+pi -c          # continue the most recent sandbox session
+pi -r          # pick a session to resume
+```
+
+To wipe all sandbox sessions: `docker volume rm pi-sessions`.
+
 ## How auth works
 
 pi's DeepSeek provider reads its key from the `DEEPSEEK_API_KEY` environment variable
